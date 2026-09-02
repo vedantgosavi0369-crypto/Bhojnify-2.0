@@ -1,0 +1,1 @@
+- [MessMate first-build boundary](messmate-first-build.md) — local-first mobile workflows; native attendance verification now, shared auth/sync/push later.
