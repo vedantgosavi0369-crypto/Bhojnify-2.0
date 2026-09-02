@@ -29,7 +29,7 @@ export default function MealsScreen() {
     try {
       const locationPermission = await Location.requestForegroundPermissionsAsync();
       if (!locationPermission.granted) {
-        Alert.alert('Location needed', 'MessMate checks that you are at the mess before marking attendance.');
+        Alert.alert('Location needed', 'Bhojnify checks that you are at the mess before marking attendance.');
         return;
       }
       const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
