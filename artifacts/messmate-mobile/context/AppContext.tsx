@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
-export type Role = 'student' | 'owner';
+export type Role = 'owner';
 export type Meal = 'Breakfast' | 'Lunch' | 'Dinner';
 
 export interface AttendanceRecord {
@@ -70,6 +70,14 @@ export interface Feedback {
   date: string;
 }
 
+export interface Reminder {
+  id: string;
+  title: string;
+  detail: string;
+  dueDate: string;
+  createdAt: string;
+}
+
 interface MessState {
   role: Role;
   credits: number;
@@ -83,10 +91,10 @@ interface MessState {
   staff: StaffMember[];
   expenses: Expense[];
   feedback: Feedback[];
+  reminders: Reminder[];
 }
 
 interface MessActions {
-  setRole: (role: Role) => void;
   markAttendance: (meal: Meal, verified: boolean, method: string) => void;
   addLeave: (from: string, to: string, reason: string) => void;
   updateLeaveStatus: (id: string, status: LeaveRequest['status']) => void;
@@ -97,6 +105,8 @@ interface MessActions {
   addStaff: (item: Omit<StaffMember, 'id'>) => void;
   addExpense: (item: Omit<Expense, 'id'>) => void;
   addPayment: (item: Omit<Payment, 'id'>) => void;
+  addReminder: (title: string, daysFromNow: number, detail?: string) => void;
+  resolveReminder: (id: string) => void;
 }
 
 const STORAGE_KEY = '@messmate/state-v1';
@@ -104,7 +114,7 @@ const today = new Date().toISOString().slice(0, 10);
 const id = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 const initialState: MessState = {
-  role: 'student',
+  role: 'owner',
   credits: 18,
   expiresOn: '2026-09-18',
   profile: { name: 'Aarav Mehta', hostel: 'Block C · Room 214', memberSince: 'Aug 2025' },
@@ -145,6 +155,9 @@ const initialState: MessState = {
   feedback: [
     { id: 'f1', dish: 'Rajma rice', rating: 4, note: 'Comforting and nicely spiced.', date: '2026-09-01' },
   ],
+  reminders: [
+    { id: 'r1', title: 'Check cooking oil supply', detail: 'Review reorder quantity before the next delivery.', dueDate: today, createdAt: today },
+  ],
 };
 
 const MessContext = createContext<(MessState & MessActions) | null>(null);
@@ -156,7 +169,7 @@ export function MessProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((stored) => {
-        if (stored) setState({ ...initialState, ...JSON.parse(stored) });
+        if (stored) setState({ ...initialState, ...JSON.parse(stored), role: 'owner' });
       })
       .catch(() => undefined)
       .finally(() => setHydrated(true));
@@ -167,7 +180,6 @@ export function MessProvider({ children }: { children: ReactNode }) {
   }, [state, hydrated]);
 
   const actions = useMemo<MessActions>(() => ({
-    setRole: (role) => setState((prev) => ({ ...prev, role })),
     markAttendance: (meal, verified, method) => setState((prev) => ({
       ...prev,
       credits: Math.max(0, prev.credits - 1),
@@ -185,6 +197,24 @@ export function MessProvider({ children }: { children: ReactNode }) {
     addStaff: (item) => setState((prev) => ({ ...prev, staff: [{ ...item, id: id() }, ...prev.staff] })),
     addExpense: (item) => setState((prev) => ({ ...prev, expenses: [{ ...item, id: id() }, ...prev.expenses] })),
     addPayment: (item) => setState((prev) => ({ ...prev, payments: [{ ...item, id: id() }, ...prev.payments] })),
+    addReminder: (title, daysFromNow, detail = 'Inventory follow-up') => setState((prev) => {
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + Math.max(0, Math.round(daysFromNow)));
+      return {
+        ...prev,
+        reminders: [
+          {
+            id: id(),
+            title,
+            detail,
+            dueDate: dueDate.toISOString().slice(0, 10),
+            createdAt: new Date().toISOString().slice(0, 10),
+          },
+          ...prev.reminders,
+        ],
+      };
+    }),
+    resolveReminder: (reminderId) => setState((prev) => ({ ...prev, reminders: prev.reminders.filter((reminder) => reminder.id !== reminderId) })),
   }), []);
 
   return <MessContext.Provider value={{ ...state, ...actions }}>{children}</MessContext.Provider>;

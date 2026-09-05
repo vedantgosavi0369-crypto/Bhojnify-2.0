@@ -1,30 +1,39 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import { KeyboardAwareScrollViewCompat } from '@/components/KeyboardAwareScrollViewCompat';
-import { FormField, Header, PrimaryButton } from '@/components/UI';
-import { useMess } from '@/context/AppContext';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Badge, Header, Screen, SectionHeading } from '@/components/UI';
+import { formatDate, useMess } from '@/context/AppContext';
 import { useColors } from '@/hooks/useColors';
-import { useState } from 'react';
 
 export default function LeaveScreen() {
   const colors = useColors();
-  const { leaves, addLeave } = useMess();
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [reason, setReason] = useState('');
-  const submit = () => { if (!from || !to || !reason) { Alert.alert('Complete the request', 'Add dates and a short reason before submitting.'); return; } addLeave(from, to, reason); Alert.alert('Leave submitted', 'Your request is now waiting for owner approval.'); router.back(); };
-  return <KeyboardAwareScrollViewCompat style={[styles.screen, { backgroundColor: colors.background }]} contentContainerStyle={styles.content} bottomOffset={24} keyboardShouldPersistTaps="handled"><Header eyebrow="Meal credits protected" title="Apply for leave" subtitle="Approved days won’t deduct from your meal plan." /><View style={[styles.info, { backgroundColor: colors.secondary }]}><Text style={[styles.infoTitle, { color: colors.primary }]}>A little heads up</Text><Text style={[styles.infoText, { color: colors.secondaryForeground }]}>Submit before you leave. The mess owner will review your request and your credits will stay intact once approved.</Text></View><FormField label="From" value={from} onChangeText={setFrom} placeholder="YYYY-MM-DD" /><FormField label="To" value={to} onChangeText={setTo} placeholder="YYYY-MM-DD" /><FormField label="Reason" value={reason} onChangeText={setReason} placeholder="Family function, travel, etc." /><PrimaryButton label="Submit leave request" icon="send" onPress={submit} /><View style={styles.existing}><Text style={[styles.existingTitle, { color: colors.foreground }]}>Recent requests</Text>{leaves.slice(0, 3).map((leave) => <View key={leave.id} style={[styles.existingRow, { borderColor: colors.border }]}><Text style={[styles.existingDates, { color: colors.foreground }]}>{leave.from} – {leave.to}</Text><Text style={[styles.existingStatus, { color: colors.mutedForeground }]}>{leave.status}</Text></View>)}</View></KeyboardAwareScrollViewCompat>;
+  const { leaves, updateLeaveStatus } = useMess();
+  const pendingLeaves = leaves.filter((leave) => leave.status === 'Pending');
+
+  return <Screen>
+    <Header eyebrow="Owner tools" title="Leave approvals" subtitle="Review member leave requests and keep meal planning accurate." onPress={() => router.push('/(tabs)/admin')} />
+    <View style={[styles.summary, { backgroundColor: colors.secondary }]}><Ionicons name="calendar-outline" size={22} color={colors.primary} /><View style={styles.summaryCopy}><Text style={[styles.summaryTitle, { color: colors.primary }]}>{pendingLeaves.length} request{pendingLeaves.length === 1 ? '' : 's'} waiting</Text><Text style={[styles.summaryDetail, { color: colors.secondaryForeground }]}>Approved leave can be reflected in your local member records.</Text></View></View>
+    <SectionHeading title="All requests" />
+    <View style={[styles.list, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      {leaves.length ? leaves.map((leave, index) => <View key={leave.id} style={[styles.row, index < leaves.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+        <View style={styles.copy}><Text style={[styles.dates, { color: colors.foreground }]}>{formatDate(leave.from)} – {formatDate(leave.to)}</Text><Text style={[styles.reason, { color: colors.mutedForeground }]}>{leave.reason}</Text></View>
+        {leave.status === 'Pending' ? <View style={styles.actions}><Pressable testID={`approve-leave-${leave.id}`} onPress={() => updateLeaveStatus(leave.id, 'Approved')} style={[styles.action, { backgroundColor: colors.secondary }]}><Ionicons name="checkmark" size={17} color={colors.primary} /></Pressable><Pressable testID={`decline-leave-${leave.id}`} onPress={() => updateLeaveStatus(leave.id, 'Declined')} style={[styles.action, { backgroundColor: colors.muted }]}><Ionicons name="close" size={17} color={colors.destructive} /></Pressable></View> : <Badge label={leave.status} tone={leave.status === 'Approved' ? 'green' : 'red'} />}
+      </View>) : <Text style={[styles.empty, { color: colors.mutedForeground }]}>No leave requests have been recorded.</Text>}
+    </View>
+  </Screen>;
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  content: { paddingHorizontal: 20, paddingTop: 54, paddingBottom: 40, gap: 18 },
-  info: { padding: 16, borderRadius: 17, gap: 5 },
-  infoTitle: { fontSize: 14, fontWeight: '700' },
-  infoText: { fontSize: 12, lineHeight: 18 },
-  existing: { gap: 10, marginTop: 8 },
-  existingTitle: { fontSize: 17, fontWeight: '700' },
-  existingRow: { flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, paddingVertical: 10 },
-  existingDates: { fontSize: 13, fontWeight: '600' },
-  existingStatus: { fontSize: 12 },
+  summary: { padding: 16, borderRadius: 18, flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  summaryCopy: { flex: 1, gap: 4 },
+  summaryTitle: { fontSize: 15, fontWeight: '700' },
+  summaryDetail: { fontSize: 12, lineHeight: 18 },
+  list: { borderWidth: 1, borderRadius: 19, paddingHorizontal: 14 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14 },
+  copy: { flex: 1, gap: 4 },
+  dates: { fontSize: 14, fontWeight: '700' },
+  reason: { fontSize: 12 },
+  actions: { flexDirection: 'row', gap: 6 },
+  action: { width: 32, height: 32, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  empty: { paddingVertical: 16, fontSize: 12 },
 });

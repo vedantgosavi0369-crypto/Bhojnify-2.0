@@ -19,17 +19,9 @@ function NativeTabLayout() {
         <Icon sf={{ default: 'house', selected: 'house.fill' }} />
         <Label>Home</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="meals">
-        <Icon sf={{ default: 'fork.knife', selected: 'fork.knife' }} />
-        <Label>Meals</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="activity">
-        <Icon sf={{ default: 'calendar', selected: 'calendar' }} />
-        <Label>Activity</Label>
-      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="admin">
         <Icon sf={{ default: 'rectangle.3.group', selected: 'rectangle.3.group.fill' }} />
-        <Label>Admin</Label>
+        <Label>Operations</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <Icon sf={{ default: 'person', selected: 'person.fill' }} />
@@ -89,9 +81,7 @@ function ClassicTabLayout() {
             ),
         }}
       />
-      <Tabs.Screen name="meals" options={{ title: 'Meals', tabBarIcon: ({ color }) => isIOS ? <SymbolView name="fork.knife" tintColor={color} size={24} /> : <Feather name="coffee" size={22} color={color} /> }} />
-      <Tabs.Screen name="activity" options={{ title: 'Activity', tabBarIcon: ({ color }) => isIOS ? <SymbolView name="calendar" tintColor={color} size={24} /> : <Feather name="calendar" size={22} color={color} /> }} />
-      <Tabs.Screen name="admin" options={{ title: 'Admin', tabBarIcon: ({ color }) => isIOS ? <SymbolView name="rectangle.3.group" tintColor={color} size={24} /> : <Feather name="grid" size={22} color={color} /> }} />
+      <Tabs.Screen name="admin" options={{ title: 'Operations', tabBarIcon: ({ color }) => isIOS ? <SymbolView name="rectangle.3.group" tintColor={color} size={24} /> : <Feather name="grid" size={22} color={color} /> }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color }) => isIOS ? <SymbolView name="person" tintColor={color} size={24} /> : <Feather name="user" size={22} color={color} /> }} />
     </Tabs>
   );

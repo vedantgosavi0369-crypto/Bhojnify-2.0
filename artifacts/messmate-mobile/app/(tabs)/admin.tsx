@@ -1,16 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Badge, Header, IconTile, PrimaryButton, RowItem, Screen, SectionHeading, StatCard } from '@/components/UI';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Badge, Header, IconTile, RowItem, Screen, SectionHeading, StatCard } from '@/components/UI';
 import { formatDate, useMess } from '@/context/AppContext';
 import { useColors } from '@/hooks/useColors';
 
 export default function AdminScreen() {
   const colors = useColors();
-  const { role, setRole, inventory, attendance, leaves, payments, expenses, feedback, updateLeaveStatus } = useMess();
-  if (role !== 'owner') {
-    return <Screen><Header eyebrow="Restricted workspace" title="Admin panel" subtitle="Owner access is required to manage Bhojnify." /><View style={[styles.lockCard, { backgroundColor: colors.card, borderColor: colors.border }]}><View style={[styles.lockIcon, { backgroundColor: colors.accent }]}><Ionicons name="lock-closed-outline" size={28} color={colors.accentForeground} /></View><Text style={[styles.lockTitle, { color: colors.foreground }]}>Switch to owner view</Text><Text style={[styles.lockDetail, { color: colors.mutedForeground }]}>Use the local owner preview to explore approvals, stock, menu planning, and monthly reporting.</Text><PrimaryButton label="Open owner workspace" icon="briefcase" onPress={() => { setRole('owner'); Alert.alert('Owner workspace enabled', 'The Admin tab is now ready for you.'); }} /></View></Screen>;
-  }
+  const { inventory, attendance, leaves, payments, expenses, feedback, updateLeaveStatus } = useMess();
   const pendingLeaves = leaves.filter((leave) => leave.status === 'Pending');
   const lowStock = inventory.filter((item) => item.quantity <= item.minimum);
   const revenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
