@@ -1,15 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { KeyboardAwareScrollViewCompat } from '@/components/KeyboardAwareScrollViewCompat';
 import { FormField, PrimaryButton } from '@/components/UI';
 import { OwnerProfile, useMess } from '@/context/AppContext';
 import { useColors } from '@/hooks/useColors';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function OnboardingScreen() {
   const colors = useColors();
   const { completeOwnerSetup } = useMess();
+  const { language, setLanguage, t } = useTranslation();
   const [name, setName] = useState('');
   const [messName, setMessName] = useState('');
   const [phone, setPhone] = useState('');
@@ -25,7 +27,7 @@ export default function OnboardingScreen() {
       email: email.trim(),
     };
     if (!profile.name || !profile.messName || !profile.phone || !profile.location) {
-      Alert.alert('Complete your owner profile', 'Name, mess name, phone number, and location are required.');
+      Alert.alert(t('completeOwnerProfile'), t('requiredProfileMessage'));
       return;
     }
     completeOwnerSetup(profile);
@@ -35,20 +37,21 @@ export default function OnboardingScreen() {
   return (
     <KeyboardAwareScrollViewCompat style={[styles.screen, { backgroundColor: colors.background }]} contentContainerStyle={styles.content} bottomOffset={24} keyboardShouldPersistTaps="handled">
       <View style={[styles.brandMark, { backgroundColor: colors.primary }]}><Ionicons name="restaurant-outline" size={28} color={colors.accent} /></View>
-      <Text style={[styles.eyebrow, { color: colors.primary }]}>BHOJNIFY · OWNER SETUP</Text>
-      <Text style={[styles.title, { color: colors.foreground }]}>Run your mess from one calm place.</Text>
-      <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>Set up your local owner workspace. Your details and records stay on this device.</Text>
+      <View style={styles.languageHeader}><Text style={[styles.languageLabel, { color: colors.mutedForeground }]}>{t('chooseLanguage')}</Text><View style={[styles.languagePicker, { backgroundColor: colors.card, borderColor: colors.border }]}><Pressable onPress={() => setLanguage('en')} style={[styles.languageOption, language === 'en' && { backgroundColor: colors.primary }]}><Text style={[styles.languageOptionText, { color: language === 'en' ? colors.primaryForeground : colors.foreground }]}>{t('english')}</Text></Pressable><Pressable onPress={() => setLanguage('mr')} style={[styles.languageOption, language === 'mr' && { backgroundColor: colors.primary }]}><Text style={[styles.languageOptionText, { color: language === 'mr' ? colors.primaryForeground : colors.foreground }]}>{t('marathi')}</Text></Pressable></View></View>
+      <Text style={[styles.eyebrow, { color: colors.primary }]}>{t('ownerSetup')}</Text>
+      <Text style={[styles.title, { color: colors.foreground }]}>{t('runMess')}</Text>
+      <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>{t('setupWorkspace')}</Text>
       <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.formTitle, { color: colors.foreground }]}>Tell us about you</Text>
-        <Text style={[styles.formDetail, { color: colors.mutedForeground }]}>Required fields are marked by the button validation.</Text>
-        <FormField label="Owner name" value={name} onChangeText={setName} placeholder="Enter owner name" />
-        <FormField label="Mess name" value={messName} onChangeText={setMessName} placeholder="Enter mess name" />
-        <FormField label="Phone number" value={phone} onChangeText={setPhone} placeholder="Enter phone number" keyboardType="numeric" />
-        <FormField label="City or location" value={location} onChangeText={setLocation} placeholder="Enter city or location" />
-        <FormField label="Email (optional)" value={email} onChangeText={setEmail} placeholder="Enter email address" />
-        <PrimaryButton label="Create owner workspace" icon="arrow-right" onPress={finishSetup} />
+        <Text style={[styles.formTitle, { color: colors.foreground }]}>{t('tellAboutYou')}</Text>
+        <Text style={[styles.formDetail, { color: colors.mutedForeground }]}>{t('requiredFields')}</Text>
+        <FormField label={t('ownerName')} value={name} onChangeText={setName} placeholder={t('enterOwnerName')} />
+        <FormField label={t('messName')} value={messName} onChangeText={setMessName} placeholder={t('enterMessName')} />
+        <FormField label={t('phoneNumber')} value={phone} onChangeText={setPhone} placeholder={t('enterPhoneNumber')} keyboardType="numeric" />
+        <FormField label={t('cityLocation')} value={location} onChangeText={setLocation} placeholder={t('enterCityLocation')} />
+        <FormField label={t('emailOptional')} value={email} onChangeText={setEmail} placeholder={t('enterEmail')} />
+        <PrimaryButton label={t('createWorkspace')} icon="arrow-right" onPress={finishSetup} />
       </View>
-      <View style={styles.localNote}><Ionicons name="lock-closed-outline" size={16} color={colors.primary} /><Text style={[styles.localNoteText, { color: colors.mutedForeground }]}>Local-only setup · no online account is created</Text></View>
+      <View style={styles.localNote}><Ionicons name="lock-closed-outline" size={16} color={colors.primary} /><Text style={[styles.localNoteText, { color: colors.mutedForeground }]}>{t('localOnlySetup')}</Text></View>
     </KeyboardAwareScrollViewCompat>
   );
 }
@@ -56,6 +59,11 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { paddingHorizontal: 20, paddingTop: 46, paddingBottom: 40, gap: 14 },
+  languageHeader: { alignItems: 'flex-end', gap: 7, marginBottom: 2 },
+  languageLabel: { fontSize: 12, fontWeight: '600' },
+  languagePicker: { flexDirection: 'row', borderWidth: 1, borderRadius: 12, padding: 3 },
+  languageOption: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 9 },
+  languageOptionText: { fontSize: 12, fontWeight: '700' },
   brandMark: { width: 58, height: 58, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 7 },
   eyebrow: { fontSize: 11, letterSpacing: 1.4, fontWeight: '700' },
   title: { fontSize: 32, lineHeight: 37, fontWeight: '700', letterSpacing: -0.8, maxWidth: 350 },

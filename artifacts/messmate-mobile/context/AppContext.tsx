@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { Language } from '@/lib/i18n';
 
 export type Role = 'owner';
 export type Meal = 'Breakfast' | 'Lunch' | 'Dinner';
@@ -88,6 +89,7 @@ export interface OwnerProfile {
 
 interface MessState {
   role: Role;
+  language: Language;
   onboardingComplete: boolean;
   credits: number;
   expiresOn: string;
@@ -104,6 +106,7 @@ interface MessState {
 }
 
 interface MessActions {
+  setLanguage: (language: Language) => void;
   completeOwnerSetup: (profile: OwnerProfile) => void;
   markAttendance: (meal: Meal, verified: boolean, method: string) => void;
   addLeave: (from: string, to: string, reason: string) => void;
@@ -125,6 +128,7 @@ const id = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 const initialState: MessState = {
   role: 'owner',
+  language: 'en',
   onboardingComplete: false,
   credits: 18,
   expiresOn: '2026-09-18',
@@ -185,6 +189,7 @@ export function MessProvider({ children }: { children: ReactNode }) {
           setState({
             ...initialState,
             ...parsed,
+            language: parsed.language === 'mr' ? 'mr' : 'en',
             profile: { ...initialState.profile, ...(parsed.profile ?? {}) },
             onboardingComplete: parsed.onboardingComplete === true,
             role: 'owner',
@@ -200,6 +205,7 @@ export function MessProvider({ children }: { children: ReactNode }) {
   }, [state, hydrated]);
 
   const actions = useMemo<MessActions>(() => ({
+    setLanguage: (language) => setState((prev) => ({ ...prev, language })),
     completeOwnerSetup: (profile) => setState((prev) => ({ ...prev, profile, onboardingComplete: true, role: 'owner' })),
     markAttendance: (meal, verified, method) => setState((prev) => ({
       ...prev,
@@ -247,8 +253,8 @@ export function useMess() {
   return context;
 }
 
-export function formatDate(value: string) {
-  return new Date(`${value}T12:00:00`).toLocaleDateString([], { day: 'numeric', month: 'short' });
+export function formatDate(value: string, language: Language = 'en') {
+  return new Date(`${value}T12:00:00`).toLocaleDateString(language === 'mr' ? 'mr-IN' : undefined, { day: 'numeric', month: 'short' });
 }
 
 export function daysUntil(value: string) {

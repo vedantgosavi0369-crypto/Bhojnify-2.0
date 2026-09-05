@@ -4,21 +4,24 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Badge, Header, Screen, SectionHeading } from '@/components/UI';
 import { formatDate, useMess } from '@/context/AppContext';
 import { useColors } from '@/hooks/useColors';
+import { useTranslation } from '@/hooks/useTranslation';
+import { localizedValue } from '@/lib/i18n';
 
 export default function LeaveScreen() {
   const colors = useColors();
   const { leaves, updateLeaveStatus } = useMess();
+  const { language, t } = useTranslation();
   const pendingLeaves = leaves.filter((leave) => leave.status === 'Pending');
 
   return <Screen>
-    <Header eyebrow="Owner tools" title="Leave approvals" subtitle="Review member leave requests and keep meal planning accurate." onPress={() => router.push('/(tabs)/admin')} />
-    <View style={[styles.summary, { backgroundColor: colors.secondary }]}><Ionicons name="calendar-outline" size={22} color={colors.primary} /><View style={styles.summaryCopy}><Text style={[styles.summaryTitle, { color: colors.primary }]}>{pendingLeaves.length} request{pendingLeaves.length === 1 ? '' : 's'} waiting</Text><Text style={[styles.summaryDetail, { color: colors.secondaryForeground }]}>Approved leave can be reflected in your local member records.</Text></View></View>
-    <SectionHeading title="All requests" />
+    <Header eyebrow={t('ownerTools')} title={t('leaveTitle')} subtitle={t('leaveSubtitle')} onPress={() => router.push('/(tabs)/admin')} />
+    <View style={[styles.summary, { backgroundColor: colors.secondary }]}><Ionicons name="calendar-outline" size={22} color={colors.primary} /><View style={styles.summaryCopy}><Text style={[styles.summaryTitle, { color: colors.primary }]}>{t('requestWaiting', { count: pendingLeaves.length, plural: pendingLeaves.length === 1 ? '' : 's' })}</Text><Text style={[styles.summaryDetail, { color: colors.secondaryForeground }]}>{t('approvedLeaveDetail')}</Text></View></View>
+    <SectionHeading title={t('allRequests')} />
     <View style={[styles.list, { backgroundColor: colors.card, borderColor: colors.border }]}>
       {leaves.length ? leaves.map((leave, index) => <View key={leave.id} style={[styles.row, index < leaves.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
         <View style={styles.copy}><Text style={[styles.dates, { color: colors.foreground }]}>{formatDate(leave.from)} – {formatDate(leave.to)}</Text><Text style={[styles.reason, { color: colors.mutedForeground }]}>{leave.reason}</Text></View>
-        {leave.status === 'Pending' ? <View style={styles.actions}><Pressable testID={`approve-leave-${leave.id}`} onPress={() => updateLeaveStatus(leave.id, 'Approved')} style={[styles.action, { backgroundColor: colors.secondary }]}><Ionicons name="checkmark" size={17} color={colors.primary} /></Pressable><Pressable testID={`decline-leave-${leave.id}`} onPress={() => updateLeaveStatus(leave.id, 'Declined')} style={[styles.action, { backgroundColor: colors.muted }]}><Ionicons name="close" size={17} color={colors.destructive} /></Pressable></View> : <Badge label={leave.status} tone={leave.status === 'Approved' ? 'green' : 'red'} />}
-      </View>) : <Text style={[styles.empty, { color: colors.mutedForeground }]}>No leave requests have been recorded.</Text>}
+        {leave.status === 'Pending' ? <View style={styles.actions}><Pressable testID={`approve-leave-${leave.id}`} onPress={() => updateLeaveStatus(leave.id, 'Approved')} style={[styles.action, { backgroundColor: colors.secondary }]}><Ionicons name="checkmark" size={17} color={colors.primary} /></Pressable><Pressable testID={`decline-leave-${leave.id}`} onPress={() => updateLeaveStatus(leave.id, 'Declined')} style={[styles.action, { backgroundColor: colors.muted }]}><Ionicons name="close" size={17} color={colors.destructive} /></Pressable></View> : <Badge label={localizedValue(language, leave.status)} tone={leave.status === 'Approved' ? 'green' : 'red'} />}
+      </View>) : <Text style={[styles.empty, { color: colors.mutedForeground }]}>{t('noLeaveRequests')}</Text>}
     </View>
   </Screen>;
 }
