@@ -81,10 +81,10 @@ export default function InventoryScreen() {
 
       <SectionHeading title="Add stock item" />
       <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <FormField label="Ingredient" value={name} onChangeText={setName} placeholder="e.g. Chickpeas" />
-        <View style={styles.twoCol}><View style={{ flex: 1 }}><FormField label="Quantity" value={quantity} onChangeText={setQuantity} placeholder="0" keyboardType="numeric" /></View><View style={{ flex: 1 }}><FormField label="Minimum" value={minimum} onChangeText={setMinimum} placeholder="0" keyboardType="numeric" /></View></View>
-        <FormField label="Unit" value={unit} onChangeText={setUnit} placeholder="kg, L, pcs" />
-        <View style={[styles.reminderPrompt, { backgroundColor: colors.secondary }]}><View style={styles.reminderPromptHeader}><Ionicons name="notifications-outline" size={18} color={colors.primary} /><Text style={[styles.reminderPromptTitle, { color: colors.primary }]}>Add a follow-up reminder</Text></View><Text style={[styles.reminderPromptDetail, { color: colors.secondaryForeground }]}>It will appear on Home after the number of days you choose.</Text><FormField label="Reminder title (optional)" value={reminderTitle} onChangeText={setReminderTitle} placeholder="e.g. Reorder cooking oil" /><FormField label="Show after how many days" value={reminderDays} onChangeText={setReminderDays} placeholder="e.g. 7" keyboardType="numeric" /></View>
+        <FormField label="Ingredient" value={name} onChangeText={setName} placeholder="Enter ingredient name" />
+        <View style={styles.twoCol}><View style={{ flex: 1 }}><FormField label="Quantity" value={quantity} onChangeText={setQuantity} placeholder="Enter quantity" keyboardType="numeric" /></View><View style={{ flex: 1 }}><FormField label="Minimum" value={minimum} onChangeText={setMinimum} placeholder="Enter minimum level" keyboardType="numeric" /></View></View>
+        <FormField label="Unit" value={unit} onChangeText={setUnit} placeholder="Enter unit" />
+        <View style={[styles.reminderPrompt, { backgroundColor: colors.secondary }]}><View style={styles.reminderPromptHeader}><Ionicons name="notifications-outline" size={18} color={colors.primary} /><Text style={[styles.reminderPromptTitle, { color: colors.primary }]}>Add a follow-up reminder</Text></View><Text style={[styles.reminderPromptDetail, { color: colors.secondaryForeground }]}>It will appear on Home after the number of days you choose.</Text><FormField label="Reminder title (optional)" value={reminderTitle} onChangeText={setReminderTitle} placeholder="Enter reminder title" /><FormField label="Show after how many days" value={reminderDays} onChangeText={setReminderDays} placeholder="Enter number of days" keyboardType="numeric" /></View>
         <PrimaryButton label="Add to ledger" icon="plus" onPress={add} />
       </View>
     </KeyboardAwareScrollViewCompat>

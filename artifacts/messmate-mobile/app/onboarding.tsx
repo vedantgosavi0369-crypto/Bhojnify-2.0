@@ -41,11 +41,11 @@ export default function OnboardingScreen() {
       <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <Text style={[styles.formTitle, { color: colors.foreground }]}>Tell us about you</Text>
         <Text style={[styles.formDetail, { color: colors.mutedForeground }]}>Required fields are marked by the button validation.</Text>
-        <FormField label="Owner name" value={name} onChangeText={setName} placeholder="e.g. Meera Shah" />
-        <FormField label="Mess name" value={messName} onChangeText={setMessName} placeholder="e.g. Green Bowl Mess" />
-        <FormField label="Phone number" value={phone} onChangeText={setPhone} placeholder="e.g. +91 98765 43210" keyboardType="numeric" />
-        <FormField label="City or location" value={location} onChangeText={setLocation} placeholder="e.g. Pune, Maharashtra" />
-        <FormField label="Email (optional)" value={email} onChangeText={setEmail} placeholder="owner@example.com" />
+        <FormField label="Owner name" value={name} onChangeText={setName} placeholder="Enter owner name" />
+        <FormField label="Mess name" value={messName} onChangeText={setMessName} placeholder="Enter mess name" />
+        <FormField label="Phone number" value={phone} onChangeText={setPhone} placeholder="Enter phone number" keyboardType="numeric" />
+        <FormField label="City or location" value={location} onChangeText={setLocation} placeholder="Enter city or location" />
+        <FormField label="Email (optional)" value={email} onChangeText={setEmail} placeholder="Enter email address" />
         <PrimaryButton label="Create owner workspace" icon="arrow-right" onPress={finishSetup} />
       </View>
       <View style={styles.localNote}><Ionicons name="lock-closed-outline" size={16} color={colors.primary} /><Text style={[styles.localNoteText, { color: colors.mutedForeground }]}>Local-only setup · no online account is created</Text></View>
