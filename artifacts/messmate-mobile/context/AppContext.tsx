@@ -78,11 +78,20 @@ export interface Reminder {
   createdAt: string;
 }
 
+export interface OwnerProfile {
+  name: string;
+  messName: string;
+  phone: string;
+  location: string;
+  email: string;
+}
+
 interface MessState {
   role: Role;
+  onboardingComplete: boolean;
   credits: number;
   expiresOn: string;
-  profile: { name: string; hostel: string; memberSince: string };
+  profile: OwnerProfile;
   attendance: AttendanceRecord[];
   leaves: LeaveRequest[];
   payments: Payment[];
@@ -95,6 +104,7 @@ interface MessState {
 }
 
 interface MessActions {
+  completeOwnerSetup: (profile: OwnerProfile) => void;
   markAttendance: (meal: Meal, verified: boolean, method: string) => void;
   addLeave: (from: string, to: string, reason: string) => void;
   updateLeaveStatus: (id: string, status: LeaveRequest['status']) => void;
@@ -115,9 +125,10 @@ const id = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 const initialState: MessState = {
   role: 'owner',
+  onboardingComplete: false,
   credits: 18,
   expiresOn: '2026-09-18',
-  profile: { name: 'Aarav Mehta', hostel: 'Block C · Room 214', memberSince: 'Aug 2025' },
+  profile: { name: '', messName: '', phone: '', location: '', email: '' },
   attendance: [
     { id: 'a1', date: today, meal: 'Breakfast', time: '08:04 AM', verified: true, method: 'Biometric + GPS' },
     { id: 'a2', date: today, meal: 'Lunch', time: '01:12 PM', verified: true, method: 'Biometric + GPS' },
@@ -169,7 +180,16 @@ export function MessProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((stored) => {
-        if (stored) setState({ ...initialState, ...JSON.parse(stored), role: 'owner' });
+        if (stored) {
+          const parsed = JSON.parse(stored) as Partial<MessState>;
+          setState({
+            ...initialState,
+            ...parsed,
+            profile: { ...initialState.profile, ...(parsed.profile ?? {}) },
+            onboardingComplete: parsed.onboardingComplete === true,
+            role: 'owner',
+          });
+        }
       })
       .catch(() => undefined)
       .finally(() => setHydrated(true));
@@ -180,6 +200,7 @@ export function MessProvider({ children }: { children: ReactNode }) {
   }, [state, hydrated]);
 
   const actions = useMemo<MessActions>(() => ({
+    completeOwnerSetup: (profile) => setState((prev) => ({ ...prev, profile, onboardingComplete: true, role: 'owner' })),
     markAttendance: (meal, verified, method) => setState((prev) => ({
       ...prev,
       credits: Math.max(0, prev.credits - 1),

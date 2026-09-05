@@ -14,3 +14,9 @@ The current product scope is mess-owner-only. Student navigation and student sub
 **Why:** The user wants to operate the mess from one owner workspace before introducing student accounts or shared workflows.
 
 **How to apply:** Keep new features owner-facing and local-first unless the user explicitly reintroduces student access or asks for shared synchronization.
+
+Owner onboarding is currently a local setup flow, not real authentication: first launch collects the owner and mess profile, persists it with the local workspace, and gates the owner dashboard until setup is complete.
+
+**Why:** The requested first step is an owner-facing landing page, while the product boundary still defers accounts, cloud sync, and server-backed authentication.
+
+**How to apply:** Preserve the onboarding gate during local-first work; replace it with secure sign-in only when the shared backend/auth follow-up is implemented.

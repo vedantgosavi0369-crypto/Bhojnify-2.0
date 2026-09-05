@@ -7,7 +7,7 @@ import { useColors } from '@/hooks/useColors';
 
 export default function HomeScreen() {
   const colors = useColors();
-  const { inventory, attendance, expenses, payments, reminders, resolveReminder } = useMess();
+  const { profile, inventory, attendance, expenses, payments, reminders, resolveReminder } = useMess();
   const lowStock = inventory.filter((item) => item.quantity <= item.minimum);
   const revenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
   const spend = expenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -16,7 +16,7 @@ export default function HomeScreen() {
   const todayLabel = new Date().toLocaleDateString([], { weekday: 'long', day: '2-digit', month: 'long' });
   return (
     <Screen>
-      <Header eyebrow={`Owner workspace · ${todayLabel}`} title="Good morning, Meera" subtitle="Here’s the pulse of your mess today." onPress={() => router.push('/(tabs)/profile')} />
+      <Header eyebrow={`Owner workspace · ${todayLabel}`} title={`Good morning, ${profile.name || 'Owner'}`} subtitle={profile.messName || 'Here’s the pulse of your mess today.'} onPress={() => router.push('/(tabs)/profile')} />
       {dueReminders.length > 0 ? <View style={[styles.reminderCard, { backgroundColor: colors.accent, borderColor: colors.accent }]}><View style={styles.reminderHeader}><View style={[styles.reminderIcon, { backgroundColor: colors.accentForeground }]}><Ionicons name="notifications-outline" size={18} color={colors.accent} /></View><View style={styles.reminderHeaderCopy}><Text style={[styles.reminderTitle, { color: colors.accentForeground }]}>Due reminders</Text><Text style={[styles.reminderDetail, { color: colors.accentForeground }]}>{dueReminders.length} follow-up{dueReminders.length === 1 ? '' : 's'} need attention.</Text></View></View>{dueReminders.map((reminder) => <View key={reminder.id} style={[styles.reminderRow, { borderTopColor: colors.accentForeground }]}><View style={styles.reminderCopy}><Text style={[styles.reminderItemTitle, { color: colors.accentForeground }]}>{reminder.title}</Text><Text style={[styles.reminderItemDetail, { color: colors.accentForeground }]}>{reminder.detail} · due {formatDate(reminder.dueDate)}</Text></View><Pressable testID={`resolve-${reminder.id}`} onPress={() => resolveReminder(reminder.id)} style={[styles.resolveButton, { backgroundColor: colors.accentForeground }]}><Text style={[styles.resolveText, { color: colors.accent }]}>Resolve</Text></Pressable></View>)}</View> : null}
       <View style={[styles.ownerHero, { backgroundColor: colors.foreground }]}><View style={styles.ownerHeroCopy}><Text style={[styles.ownerKicker, { color: colors.accent }]}>TODAY AT A GLANCE</Text><Text style={[styles.ownerTitle, { color: colors.card }]}>Keep the kitchen moving.</Text><Text style={[styles.ownerDetail, { color: colors.card }]}>Your operations are looking steady. One stock item needs attention.</Text></View><Ionicons name="restaurant-outline" size={46} color={colors.accent} /></View>
       <View style={styles.statsRow}><StatCard label="MEALS SERVED" value={`${attendance.length + 126}`} detail="+8% vs last week" /><StatCard label="REVENUE" value={`₹${(revenue / 1000).toFixed(1)}k`} detail="this month" tone="amber" /></View>
