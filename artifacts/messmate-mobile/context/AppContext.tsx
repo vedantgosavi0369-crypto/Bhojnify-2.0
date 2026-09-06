@@ -124,6 +124,7 @@ interface MessActions {
   completeOwnerSetup: (profile: OwnerProfile) => void;
   markAttendance: (meal: Meal, verified: boolean, method: string) => void;
   addCustomer: (customer: Omit<Customer, 'id'>) => void;
+  markCustomerPaid: (id: string) => void;
   addLeave: (customerId: string, from: string, to: string, reason: string) => void;
   updateLeaveStatus: (id: string, status: LeaveRequest['status']) => void;
   addFeedback: (dish: string, rating: number, note: string) => void;
@@ -232,6 +233,7 @@ export function MessProvider({ children }: { children: ReactNode }) {
       ],
     })),
     addCustomer: (customer) => setState((prev) => ({ ...prev, customers: [{ ...customer, id: id() }, ...prev.customers] })),
+    markCustomerPaid: (customerId) => setState((prev) => ({ ...prev, customers: prev.customers.map((customer) => customer.id === customerId ? { ...customer, paymentStatus: 'Paid' } : customer) })),
     addLeave: (customerId, from, to, reason) => setState((prev) => ({ ...prev, leaves: [{ id: id(), customerId, from, to, reason, status: 'Pending' }, ...prev.leaves] })),
     updateLeaveStatus: (requestId, status) => setState((prev) => ({ ...prev, leaves: prev.leaves.map((leave) => leave.id === requestId ? { ...leave, status } : leave) })),
     addFeedback: (dish, rating, note) => setState((prev) => ({ ...prev, feedback: [{ id: id(), dish, rating, note, date: new Date().toISOString().slice(0, 10) }, ...prev.feedback] })),

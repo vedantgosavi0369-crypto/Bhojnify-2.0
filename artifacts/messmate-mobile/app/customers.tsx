@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 export default function CustomersScreen() {
   const colors = useColors();
-  const { customers, addCustomer } = useMess();
+  const { customers, addCustomer, markCustomerPaid } = useMess();
   const { language, t } = useTranslation();
   const [name, setName] = useState('');
   const [plan, setPlan] = useState('');
@@ -45,6 +45,7 @@ export default function CustomersScreen() {
       {customers.length ? customers.map((customer, index) => <View key={customer.id} style={[styles.customerRow, index < customers.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
         <View style={[styles.avatar, { backgroundColor: colors.secondary }]}><Text style={[styles.avatarText, { color: colors.primary }]}>{customer.name.split(' ').map((word) => word[0]).join('').slice(0, 2).toUpperCase()}</Text></View>
         <View style={styles.customerCopy}><View style={styles.nameLine}><Text style={[styles.customerName, { color: colors.foreground }]}>{customer.name}</Text><Badge label={localizedValue(language, customer.paymentStatus)} tone={customer.paymentStatus === 'Paid' ? 'green' : 'amber'} /></View><Text style={[styles.meta, { color: colors.mutedForeground }]}>{customer.plan} · {customer.phone}</Text><Text style={[styles.meta, { color: colors.mutedForeground }]}>{formatDate(customer.joiningDate, language)} – {formatDate(customer.expiryDate, language)}</Text></View>
+        {customer.paymentStatus === 'Unpaid' ? <Pressable testID={`mark-paid-${customer.id}`} onPress={() => markCustomerPaid(customer.id)} style={({ pressed }) => [styles.paidAction, { backgroundColor: colors.secondary, opacity: pressed ? 0.72 : 1 }]}><Ionicons name="checkmark-circle-outline" size={15} color={colors.primary} /><Text style={[styles.paidActionText, { color: colors.primary }]}>{t('markAsPaid')}</Text></Pressable> : null}
       </View>) : <View style={styles.empty}><Ionicons name="people-outline" size={28} color={colors.primary} /><Text style={[styles.emptyTitle, { color: colors.foreground }]}>{t('noCustomers')}</Text><Text style={[styles.emptyDetail, { color: colors.mutedForeground }]}>{t('noCustomersDetail')}</Text></View>}
     </View>
     <SectionHeading title={t('addCustomer')} />
@@ -75,6 +76,8 @@ const styles = StyleSheet.create({
   nameLine: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   customerName: { flex: 1, fontSize: 14, fontWeight: '700' },
   meta: { fontSize: 10 },
+  paidAction: { minHeight: 34, paddingHorizontal: 9, borderRadius: 11, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
+  paidActionText: { fontSize: 10, fontWeight: '700' },
   empty: { alignItems: 'center', gap: 8, paddingVertical: 24 },
   emptyTitle: { fontSize: 16, fontWeight: '700' },
   emptyDetail: { fontSize: 12, lineHeight: 18, textAlign: 'center' },
