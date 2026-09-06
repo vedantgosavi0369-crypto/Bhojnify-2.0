@@ -59,7 +59,7 @@ export function RowItem({ icon, title, detail, right, onPress, destructive = fal
   return onPress ? <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>{row}</Pressable> : row;
 }
 
-export function FormField({ label, value, onChangeText, placeholder, keyboardType = 'default' }: { label: string; value: string; onChangeText: (value: string) => void; placeholder: string; keyboardType?: 'default' | 'numeric' }) {
+export function FormField({ label, value, onChangeText, placeholder, keyboardType = 'default' }: { label: string; value: string; onChangeText: (value: string) => void; placeholder: string; keyboardType?: 'default' | 'numeric' | 'phone-pad' }) {
   const colors = useColors();
   return <View style={styles.formField}><Text style={[styles.formLabel, { color: colors.foreground }]}>{label}</Text><TextInput testID={`input-${label.toLowerCase().replace(/\s/g, '-')}`} value={value} onChangeText={onChangeText} placeholder={placeholder} placeholderTextColor={colors.mutedForeground} keyboardType={keyboardType} style={[styles.textInput, { borderColor: colors.input, backgroundColor: colors.card, color: colors.foreground }]} /></View>;
 }

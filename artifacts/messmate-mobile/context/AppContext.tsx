@@ -16,10 +16,23 @@ export interface AttendanceRecord {
 
 export interface LeaveRequest {
   id: string;
+  customerId?: string;
   from: string;
   to: string;
   reason: string;
   status: 'Pending' | 'Approved' | 'Declined';
+}
+
+export type CustomerPaymentStatus = 'Paid' | 'Unpaid';
+
+export interface Customer {
+  id: string;
+  name: string;
+  plan: string;
+  joiningDate: string;
+  expiryDate: string;
+  paymentStatus: CustomerPaymentStatus;
+  phone: string;
 }
 
 export interface Payment {
@@ -95,6 +108,7 @@ interface MessState {
   expiresOn: string;
   profile: OwnerProfile;
   attendance: AttendanceRecord[];
+  customers: Customer[];
   leaves: LeaveRequest[];
   payments: Payment[];
   inventory: InventoryItem[];
@@ -109,7 +123,8 @@ interface MessActions {
   setLanguage: (language: Language) => void;
   completeOwnerSetup: (profile: OwnerProfile) => void;
   markAttendance: (meal: Meal, verified: boolean, method: string) => void;
-  addLeave: (from: string, to: string, reason: string) => void;
+  addCustomer: (customer: Omit<Customer, 'id'>) => void;
+  addLeave: (customerId: string, from: string, to: string, reason: string) => void;
   updateLeaveStatus: (id: string, status: LeaveRequest['status']) => void;
   addFeedback: (dish: string, rating: number, note: string) => void;
   addInventory: (item: Omit<InventoryItem, 'id'>) => void;
@@ -138,6 +153,7 @@ const initialState: MessState = {
     { id: 'a2', date: today, meal: 'Lunch', time: '01:12 PM', verified: true, method: 'Biometric + GPS' },
     { id: 'a3', date: '2026-09-01', meal: 'Dinner', time: '08:06 PM', verified: true, method: 'Biometric + GPS' },
   ],
+  customers: [],
   leaves: [
     { id: 'l1', from: '2026-09-08', to: '2026-09-10', reason: 'Family function', status: 'Pending' },
     { id: 'l2', from: '2026-08-21', to: '2026-08-22', reason: 'Weekend travel', status: 'Approved' },
@@ -215,7 +231,8 @@ export function MessProvider({ children }: { children: ReactNode }) {
         ...prev.attendance,
       ],
     })),
-    addLeave: (from, to, reason) => setState((prev) => ({ ...prev, leaves: [{ id: id(), from, to, reason, status: 'Pending' }, ...prev.leaves] })),
+    addCustomer: (customer) => setState((prev) => ({ ...prev, customers: [{ ...customer, id: id() }, ...prev.customers] })),
+    addLeave: (customerId, from, to, reason) => setState((prev) => ({ ...prev, leaves: [{ id: id(), customerId, from, to, reason, status: 'Pending' }, ...prev.leaves] })),
     updateLeaveStatus: (requestId, status) => setState((prev) => ({ ...prev, leaves: prev.leaves.map((leave) => leave.id === requestId ? { ...leave, status } : leave) })),
     addFeedback: (dish, rating, note) => setState((prev) => ({ ...prev, feedback: [{ id: id(), dish, rating, note, date: new Date().toISOString().slice(0, 10) }, ...prev.feedback] })),
     addInventory: (item) => setState((prev) => ({ ...prev, inventory: [{ ...item, id: id() }, ...prev.inventory] })),
